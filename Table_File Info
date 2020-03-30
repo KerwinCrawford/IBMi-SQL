@@ -1,0 +1,55 @@
+-- category: IBMi_SQL
+-- description: Table_File Information
+--   Create a work varable with search value Change the defualt and run both
+CREATE OR REPLACE VARIABLE kcrawford2.TmpSQLV01 CHAR(10) DEFAULT 'QS36F' -- Library
+;
+CREATE OR REPLACE VARIABLE kcrawford2.TmpSQLV02 CHAR(10) DEFAULT 'CALNDR' -- Table
+;
+-- #########################################################################################################################
+-- Show all columns in a table with keys
+SELECT col.system_table_name || ' > ' || col.table_name AS Tbl_Name1030 
+      ,col.system_column_name || ' > ' || col.column_name AS Column_Name1030 
+      ,TRIM(CAST(col.data_type AS CHAR(20))) || '(' ||
+          CASE
+          WHEN datetime_precision IS NOT NULL
+             THEN TRIM(CAST(datetime_precision AS CHAR(7))) || ')'
+          WHEN character_maximum_length IS NULL
+             THEN TRIM(CAST(Numeric_precision AS CHAR(7))) || ',' || TRIM(CAST(numeric_scale AS CHAR)) || ')' 
+          ELSE TRIM(CAST(character_maximum_length AS CHAR(7))) || ')'
+          END AS Data_type2 
+      ,COALESCE((SELECT SUM(col2.storage) + 1
+                 FROM qsys2.syscolumns col2
+                 WHERE col2.ordinal_position < col.ordinal_position
+                   AND col2.system_table_name = col.system_table_name
+                   AND col2.system_table_schema = col.system_table_schema
+                 GROUP BY col2.system_table_schema , col2.system_table_name) ,1) AS start_Pos 
+      ,col.ordinal_position AS Col_Pos 
+      ,kfld.dbkpos AS Key_Pos 
+      ,kfld.dbkord AS Key_order 
+      ,column_text 
+      ,column_heading 
+      ,long_comment 
+      ,col.system_table_schema || ' > ' || col.table_schema AS Tbl_Schema1030 
+      ,col.system_table_name 
+      ,col.system_column_name
+      ,TRIM(CAST(col.data_type AS CHAR(20))) || '(' ||
+          CASE
+          WHEN datetime_precision IS NOT NULL
+             THEN TRIM(CAST(datetime_precision AS CHAR(7))) || ')'
+          WHEN character_maximum_length IS NULL
+             THEN TRIM(CAST(Numeric_precision AS CHAR(7))) || ',' || TRIM(CAST(numeric_scale AS CHAR)) || ')' 
+          ELSE TRIM(CAST(character_maximum_length AS CHAR(7))) || ')'
+          END AS Data_type2 
+      ,column_text
+    FROM qsys2.syscolumns col LEFT OUTER
+    JOIN qsys.qadbkfld kfld 
+       ON kfld.dbklib = col.table_schema
+       AND kfld.dbkfil = col.table_name
+       AND kfld.dbkfld = col.system_column_name
+    WHERE table_schema = kcrawford2.TempSQLV01
+          AND 
+          table_name = kcrawford2.TempSQLV02
+    ORDER BY table_schema 
+       ,TABLE_NAME 
+       ,ordinal_position -- comment this out if you want in key order
+       ,kfld.dbkpos
