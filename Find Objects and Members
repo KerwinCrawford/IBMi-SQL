@@ -1,0 +1,24 @@
+-- category: IBMi_SQL
+-- description: Find Objects_Members
+--   Create a work variable with search value Change the default and run both
+CREATE OR REPLACE VARIABLE kcrawford2.TmpSQLV01 CHAR(10) DEFAULT 'CLMXI3'
+;
+     -- get the source members
+SELECT p.table_partition AS Search_Value, p.table_schema AS Library_Name, 
+       p.table_name as tbl_Src_name, p.source_type as Src_Obj_Type,  
+       '' AS SQL_Obj_Type, '' AS Obj_Attribute, 
+       p.partition_text as Text, p.create_timestamp, 
+       p.last_change_timestamp, p.last_used_timestamp, 
+       p.last_source_update_timestamp
+    FROM qsys2.syspartitionstat p
+    WHERE p.table_partition = kcrawford2.TmpSQLV01 AND p.source_type IS not null
+UNION
+    -- get the objects
+    SELECT objname, objlib, 
+           case when objtype = '*FILE' then objname else '' end, objtype, 
+           sql_object_type,objattribute, 
+           objtext,objcreated, 
+           change_timestamp,last_used_timestamp, 
+           '1900-01-01 00:00:00.001000'
+        FROM TABLE (QSYS2.OBJECT_STATISTICS('*ALLUSR', '*ALL', OBJECT_NAME => kcrawford2.TmpSQLV01)) X
+    ORDER BY 1,2,5,3            
