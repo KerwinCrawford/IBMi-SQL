@@ -1,0 +1,17 @@
+-- category: .SYS
+-- description: sys_Changed_Source_Past_31_days_by_Last_Updated_desc
+-- =========+=========+=========+=========+=========+
+SELECT CAST(table_schema AS CHAR(10)) AS lib_Name,
+       CAST(table_partition AS CHAR(10)) AS Mbr_Name,
+       CAST(TABLE_NAME AS CHAR(10)) AS Src_File,
+       source_type as Src_Type,
+       CAST(Partition_text AS CHAR(50)) AS Mbr_Text,
+       last_source_update_timestamp AS Src_Last_updated,
+       Create_timestamp AS Src_Created
+    FROM qsys2.SYSPARTITIONSTAT
+    WHERE TABLE_SCHEMA != 'QS36F'
+          and table_schema not like 'ARC%'
+          and table_schema not like 'Q%'
+          AND TABLE_NAME != 'FTPTXT'
+          AND last_source_update_timestamp > CURRENT TIMESTAMP - 31 DAYS
+    ORDER BY 6 desc
