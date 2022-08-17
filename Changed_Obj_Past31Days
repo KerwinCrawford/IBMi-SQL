@@ -1,0 +1,219 @@
+-- category: .SYS
+-- description: sys_Changed_Objects_Past_31_days_by_Obj_CrtDate_desc
+-- =========+=========+=========+=========+=========+
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('CAFTERIA', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('COBRA', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('DOCSYS', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('WEBSRV', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('PARKING', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('DIRECTPA', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('#LIBRARY', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('RVICUST', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('ACOUNT', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('ASIAP', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('ASIAR', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('ASIMS', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('ASIMS', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('PHONE', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('PAYROL', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('LOGO', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('HRALIB', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+union
+SELECT CAST(objlongschema AS CHAR(10)) AS Lib_name,
+       objname AS Obj_Name,
+       objtype AS obj_type,
+       objattribute AS Obj_attribute,
+       objowner AS Obj_owner,
+       objcreated AS obj_created,
+       last_used_timestamp as Last_used,
+       objtext AS obj_text
+    FROM TABLE(QSYS2.OBJECT_STATISTICS('ENUMCHG', '*ALL')) AS X
+    WHERE objcreated > CURRENT TIMESTAMP - 31 DAYS
+       and objattribute not in ('PF', 'LF')
+order by 6 desc	   
