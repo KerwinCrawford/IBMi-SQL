@@ -1,0 +1,224 @@
+-- category: .SYS
+-- description: sys_Program_Call_stack
+-- =========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
+-- =========+=========+=========+=========+=========+
+-- Build the work file with program reference information.
+cl:DSPPGMREF PGM(CAFTERIA/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *REPLACE);
+cl:DSPPGMREF PGM(DOCSYS/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(cobra/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+--cl:DSPPGMREF PGM(webdata/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD); Don't need No Pgms
+cl:DSPPGMREF PGM(parking/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(directpa/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(websrv/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(#library/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(rvicust/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(acount/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(asiap/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(asiar/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(asims/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(hralib/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(phone/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(payrol/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+--cl:DSPPGMREF PGM(logo/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD); Don't need No Pgms
+cl:DSPPGMREF PGM(enumchg/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD);
+cl:DSPPGMREF PGM(prodtest/*ALL) OUTPUT(*OUTFILE) OBJTYPE(*ALL) OUTFILE(KCRAWFORD2/@tTmpSql91) OUTMBR(*FIRST *ADD)
+;
+stop
+;
+-- =========+=========+=========+=========+=========+
+--   Create a work variable with search value Change the default and run both
+CREATE OR REPLACE VARIABLE kcrawford2.@vTmpSql91 CHAR(10) DEFAULT 'EMPLRATR' -- Program searching for
+;
+CREATE OR REPLACE VARIABLE kcrawford2.@vTmpSql92 CHAR(10) DEFAULT 'STATES' -- File searching for
+;
+stop
+;
+-- =========+=========+=========+=========+=========+
+-- What programs are called by this program?  What is the call stack?
+Select distinct 
+        trim(whFnam) "Pgm"
+       , trim(whLib) "Library"
+       ,'Called_By' as "Action",
+       Connect_By_Root whPnam "Program_Name", 
+       Connect_By_Root trim(whPnam) concat
+                       Sys_Connect_By_Path(trim(whFnam) 
+                            concat '.' 
+                            concat lower(trim(whOtyp))
+                            , ' > ') "Call_Stack"
+       , Level "Levels"
+       ,(SELECT objcreated 
+         FROM TABLE (QSYS2.OBJECT_STATISTICS(trim(whLib), '*ALL')) Z
+         where z.objlib = trim(whLib) and 
+               z.objname = trim(whFnam) fetch first row only) "Obj_Created"
+       ,(SELECT last_used_timestamp 
+         FROM TABLE (QSYS2.OBJECT_STATISTICS(trim(whLib), '*ALL')) Z
+         where z.objlib = trim(whLib) and 
+               z.objname = trim(whFnam) fetch first row only) "Obj_Last_Used"
+   from kcrawford2.@tTmpSql91
+   where whFnam not like 'Q%' 
+     and whFnam not like '*%' 
+     and whFnam not like '&%'
+     and whObjT != 'F' 
+     and whOTyp != '*FILE'
+     and Connect_By_isCycle = 0
+     and Connect_By_isLeaf = 0
+--	 and level < 2
+   Start With whPnam = kcrawford2.@vTmpSql91
+   Connect By NoCycle whPnam = Prior whFnam
+                        and prior whObjT != 'F' 
+                        and prior whOTyp != '*FILE'
+                        and prior whFnam != kcrawford2.@vTmpSql91
+union all
+-- =========+=========+=========+=========+=========+
+-- What programs call this program?  What is the reverse call stack?
+Select distinct 
+        trim(whPnam) "Pgm",
+        trim(whLib) "Library",
+       'Call_This' as "Action",
+       Connect_By_Root whFnam "Program_Name", 
+       Connect_By_Root trim(whFnam) concat
+                       Sys_Connect_By_Path(trim(whPnam) 
+                            concat '.' 
+                            concat lower(trim(whOtyp))
+                            , ' < ') "Called_By_Stack"
+       , Level "Levels"
+       ,(SELECT objcreated 
+         FROM TABLE (QSYS2.OBJECT_STATISTICS(trim(whLib), '*ALL')) Z
+         where z.objlib = trim(whLib) and 
+               z.objname = trim(whPnam)) "Obj_Created"
+       ,(SELECT last_used_timestamp 
+         FROM TABLE (QSYS2.OBJECT_STATISTICS(trim(whLib), '*ALL')) Z
+         where z.objlib = trim(whLib) and 
+               z.objname = trim(whPnam)) "Obj_Last_Used"
+   from kcrawford2.@tTmpSql91
+   where whPnam not like 'Q%' 
+     and whPnam not like '*%' 
+     and whPnam not like '&%'
+     and whObjT != 'F' 
+     and whOTyp != '*FILE'
+     and Connect_By_isCycle = 0
+--     and Connect_By_isLeaf = 0
+	 and level < 2
+   Start With whFnam = kcrawford2.@vTmpSql91
+   Connect By NoCycle whFnam = Prior whPnam
+                        and prior whObjT != 'F' 
+                        and prior whOTyp != '*FILE'
+                        and prior whPnam != kcrawford2.@vTmpSql91
+   Order By 3,1
+;;
+-- =========+=========+=========+=========+=========+
+-- =========+=========+=========+=========+=========+
+-- What files are used by this program?
+select whPnam as "Program"
+   , whFnam as "Uses_This"
+   , whotyp as "Object_Type"
+   ,case when whFUsg = 1 then 'I' 
+            when whFUsg = 2 then 'O' 
+            when whFUsg = 3 then 'I/O' 
+            when whFUsg = 4 then 'U' 
+            when whFUsg = 5 then 'I/U' 
+            when whFUsg = 6 then 'O/U'
+            when whFUsg = 7 then 'I/O/U'
+            when whFUsg = 8 then 'N/S'
+            when whFUsg = 0 then 'N/A'
+            else '?'
+            end "Program Usage"
+      ,(select source_type from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whpnam 
+			   order by table_name fetch first row only) as SRC_type
+      ,whLib as "SRC_Lib"
+      ,(select table_name from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whpnam 
+			   order by table_name fetch first row only) as SRC_File
+      ,whRFnm as "Table Record Format"
+      ,(select objtype from table(qsys2.object_statistics(x.whlib,'PGM',x.whfnam))) as Obj_Type
+      ,(select sql_object_type from table(qsys2.object_statistics(x.whlib,'PGM',x.whfnam))) as Sql_Obj_type
+      ,whText as "Text"
+      ,(select last_used_timestamp from table(qsys2.object_statistics(x.whlib,'PGM',x.whfnam))) as Last_Used
+      ,(select objcreated from table(qsys2.object_statistics(x.whlib,'PGM',x.whfnam))) as Obj_Created
+      ,(select change_timestamp from table(qsys2.object_statistics(x.whlib,'PGM',x.whfnam))) as Obj_Changed
+      ,(select last_source_update_timestamp from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whfnam 
+			   order by table_name fetch first row only) as SRC_Last_Update
+      ,(select last_change_timestamp from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whfnam 
+			   order by table_name fetch first row only) as SRC_last_change
+      ,(select last_used_timestamp from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whfnam 
+			   order by table_name fetch first row only) as SRC_last_used
+   from KCRAWFORD2.@tTmpSql91 x  
+   where whPnam = kcrawford2.@vTmpSql91
+     and whObjt = 'F'
+   Order By 2 
+;;
+-- =========+=========+=========+=========+=========+
+-- =========+=========+=========+=========+=========+
+-- What programs use this file?
+
+-- What programs use this file or it's dependants
+Select whFnam "File/Logical/Table/View"
+      ,trim(whPnam) "Used_by"
+      ,lower(trim(case when whSPkg = 'P' then 'Pgm' 
+                       when whSPkg = 'S' then 'SQLPkg' 
+                       when whSPkg = 'V' then 'SrvPgm' 
+                       when whSPkg = 'M' then 'Module' 
+                       when whSPkg = 'Q' then 'QryDfn' 
+                       else '?'
+                  end)) "Pgm_Type"       
+      ,(select source_type from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whpnam 
+			   order by table_name fetch first row only) as SRC_type
+      ,whLib 
+      ,(select table_name from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whpnam 
+			   order by table_name fetch first row only) as SRC_File
+      ,whRFnm
+      ,case when whFUsg = 1 then 'I' 
+            when whFUsg = 2 then 'O' 
+            when whFUsg = 3 then 'I/O' 
+            when whFUsg = 4 then 'U' 
+            when whFUsg = 5 then 'I/U' 
+            when whFUsg = 6 then 'O/U'
+            when whFUsg = 7 then 'I/O/U'
+            when whFUsg = 8 then 'N/S'
+            when whFUsg = 0 then 'N/A'
+            else '?'
+            end "Usage"
+      ,(select objtype from table(qsys2.object_statistics(x.whlib,'PGM',x.whpnam))) as Obj_Type
+      ,(select sql_object_type from table(qsys2.object_statistics(x.whlib,'PGM',x.whpnam))) as Sql_Obj_type
+      ,whText
+      ,(select last_used_timestamp from table(qsys2.object_statistics(x.whlib,'PGM',x.whpnam))) as Last_Used
+      ,(select objcreated from table(qsys2.object_statistics(x.whlib,'PGM',x.whpnam))) as Obj_Created
+      ,(select change_timestamp from table(qsys2.object_statistics(x.whlib,'PGM',x.whpnam))) as Obj_Changed
+      ,(select last_source_update_timestamp from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whpnam 
+			   order by table_name fetch first row only) as SRC_Last_Update
+      ,(select last_change_timestamp from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whpnam 
+			   order by table_name fetch first row only) as SRC_last_change
+      ,(select last_used_timestamp from qsys2.syspartitionstat where table_schema = x.whLib and 
+	           table_name in ('QRPGLESRC', 'CLSRC', 'QS36SRC') and table_Partition = x.whpnam 
+			   order by table_name fetch first row only) as SRC_last_used
+from KCRAWFORD2.@tTmpSql91 x
+where whFnam = kcrawford2.@vTmpSql92
+   or whFnam in (SELECT DBFFDP FROM QSYS.QADBFDEP q
+                 WHERE DBFFIL = kcrawford2.@vTmpSql92
+                    or dbffil in (select dbffil from qsys.qadbfdep 
+                                  where dbffdp = kcrawford2.@vTmpSql92)
+                 union
+                 SELECT DBFFIL FROM QSYS.QADBFDEP q
+                 WHERE DBFFIL = kcrawford2.@vTmpSql92
+                    or dbffil in (select dbffil from qsys.qadbfdep 
+                                  where dbffdp = kcrawford2.@vTmpSql92)
+                )
+--and (select last_used_timestamp from table(qsys2.object_statistics(x.whlib,'PGM',x.whpnam))) > '2019-12-30 00:00:00.000000'
+Order By 2,1 
+; 
+stop
+;
+-- =========+=========+=========+=========+=========+
+-- Clean UP
+cl:DLTF FILE(KCRAWFORD2/@tTmpSql91);
+cl:DLTSRVPGM SRVPGM(KCRAWFORD2/@vTmpSql91);
+cl:DLTSRVPGM SRVPGM(KCRAWFORD2/@vTmpSql92);
+;
